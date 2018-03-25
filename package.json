@@ -1,0 +1,23 @@
+{
+  "name": "shortlink-rest",
+  "version": "1.0.0",
+  "description": "URL shotener\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[Cr\u001b[C\u001b[Dt\u001b[C\u001b[C\u001b[C API",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RomanNov/shortlink-rest.git"
+  },
+  "author": "Roman Novitki\u001b[D\u001b[Ds\u001b[D\u001b[Cki",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RomanNov/shortlink-rest/issues"
+  },
+  "homepage": "https://github.com/RomanNov/shortlink-rest#readme",
+  "dependencies": {
+    "hapi": "^17.2.3",
+    "mongoose": "^5.0.11"
+  }
+}
