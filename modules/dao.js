@@ -39,11 +39,11 @@ linkSchema.pre('save', function(next) {
 });
 
 function _findTokenByFullLink  (fullLink) {
-    return Link.findOne({'full_link': fullLink},'count', (err, link) => {
+    return Link.findOne({'full_link': fullLink},'count hits', (err, link) => {
         if(err) throw err; 
     }).then(link => {
         if(link) {
-            return Codec.encode(link.count);
+            return { token: Codec.encode(link.count), hits: link.hits } ;
         }
         return null;
     }).catch((reason)=> { console.error(reason) });
@@ -53,13 +53,13 @@ exports.findTokenByFullLink = _findTokenByFullLink
 
 exports.insert = async (fullLink) => {
     return _findTokenByFullLink(fullLink)
-            .then(token =>{
-                if(token){
-                    return token;
+            .then(tokenInfo =>{
+                if(tokenInfo){
+                    return tokenInfo;
                 }
                 else{
                     let link = new Link({ full_link:fullLink, hits: 0 });
-                    return link.save().then((savedLink) => savedLink?Codec.encode(savedLink.count):null);                
+                    return link.save().then((savedLink) => savedLink?{ token: Codec.encode(savedLink.count), hits:savedLink.hits }:null);                
                 }
             }).catch((reason)=> { console.error(reason) });
 

@@ -64,13 +64,13 @@ const init = async () => {
         handler: async (request, h) => {
             let fullLink=request.payload.full_link;
             if(fullLink) {
-                fullLink=fullLink.replace("https://","").replace("http://","").trim().replace(" ","");
+                fullLink=fullLink.replace("https://","").replace("http://","").trim().replace(/ /g,"");
                 if(fullLink.length != 0){
-                    let token=await Dao.findTokenByFullLink(fullLink);
-                    if(!token) {
-                        token= await Dao.insert(fullLink).then((token)=>token);
+                    let tokenInfo=await Dao.findTokenByFullLink(fullLink);
+                    if(!tokenInfo) {
+                        tokenInfo= await Dao.insert(fullLink).then((tokenInfo)=>tokenInfo);
                     }
-                    return { url: token};
+                    return { url: tokenInfo.token, hits: tokenInfo.hits};
                 } else{
                     throw Boom.badRequest("The link cannot be empty string");
                 }
