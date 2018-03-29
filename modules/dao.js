@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-let fs = require('fs');
+const fs = require('fs');
 const Codec = require('./url-coder');
 
 let connect= JSON.parse(fs.readFileSync('./db_properties.json', 'utf8'));
@@ -46,12 +46,12 @@ function _findTokenByFullLink  (fullLink) {
             return Codec.encode(link.count);
         }
         return null;
-    })
+    }).catch((reason)=> { console.error(reason) });
 }
 
 exports.findTokenByFullLink = _findTokenByFullLink
 
-exports.insert = (fullLink) => {
+exports.insert = async (fullLink) => {
     return _findTokenByFullLink(fullLink)
             .then(token =>{
                 if(token){
@@ -59,24 +59,36 @@ exports.insert = (fullLink) => {
                 }
                 else{
                     let link = new Link({ full_link:fullLink, hits: 0 });
-                    link.save(function (err) {
-                        if (err) throw err;
-                    });
+                    return link.save().then((savedLink) => savedLink?Codec.encode(savedLink.count):null);                
                 }
-            })
+            }).catch((reason)=> { console.error(reason) });
 
 }
 
-exports.findLinkByTokenAndUpdate = (token) => {
+exports.findLinkByToken = (token) => {
     let count=Codec.decode(token);
-    return Link.findOne({'count': count},'full_link count hits', (err, link) => {
+    return Link.findOne({'count': count},'full_link hits created_at', (err, link) => {
+        if(err) throw err;
+    }).then(link => link).catch((reason)=> { console.error(reason) });
+}
+
+exports.findLinks = () => {
+    return Link.find({},'full_link hits created_at updated_at', (err, link) => {
+        if(err) throw err;
+    }).then(links => links).catch((reason)=> { console.error(reason) });
+}
+
+exports.findLinkByTokenAndUpdateHits = (token) => {
+    let count=Codec.decode(token);
+    return Link.findOne({'count': count},'full_link hits', (err, link) => {
         if(err) throw err;
     }).then(link => {
         if(link){
-          return  Link.update({ _id: link.id}, { $set: { hits: link.hits+1, updated_at: new Date() } })
+          link.hits=link.hits+1  ;
+          return  Link.update({ _id: link.id}, { $set: { hits: link.hits, updated_at: new Date() } })
             .then(()=> link.full_link);
         }
         return null;
-    })
+    }).catch((reason)=> { console.error(reason) });
 }
 
